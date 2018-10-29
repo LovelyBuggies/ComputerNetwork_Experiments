@@ -16,7 +16,7 @@ def send_distance_vector_once(node:Node):
 	# print('sending DV after updating... ');
 	n_addr = name_To_address('M');
 	sendpkt = Packet(node.address, n_addr, node.RIP_routingTable, 1);
-	node.socket.sendto(sendpkt.serialize().encode(), (n_addr.ip, n_addr.port));
+	node.receiveSocket.sendto(sendpkt.serialize().encode(), (n_addr.ip, n_addr.port));
 
 
 # 相邻路由器周期性(30s)地交换距离向量
@@ -29,7 +29,7 @@ def send_distance_vector_periodcally(node: Node):
 		try:
 			n_addr = name_To_address('M');
 			sendpkt = Packet(node.address, n_addr, node.RIP_routingTable, 1);
-			node.socket.sendto(sendpkt.serialize().encode(), (n_addr.ip, n_addr.port));
+			node.receiveSocket.sendto(sendpkt.serialize().encode(), (n_addr.ip, n_addr.port));
 		finally:
 			lock.release();
 
@@ -48,7 +48,7 @@ def start_UDP_listener_thread(node: Node):
 
 def handle_receiving_packet(node: Node):
 	while True:
-		data, addr = node.socket.recvfrom(1024);  # 接收数据
+		data, addr = node.receiveSocket.recvfrom(1024);  # 接收数据
 		recvPkt = Packet();
 		recvPkt.deserialize(bytes.decode(data));
 

@@ -138,7 +138,6 @@ def handle_receiving_RIP_distance_vector_packet(node: Node, recvPkt: Packet):
 	finally:
 		lock.release();
 
-	
 
 def handle_receiving_command_packet(node: Node, recvPkt: Packet):
 	node.send_a_normal_packet(name_To_address(recvPkt.payload), 'Hello, I\'m ' + str(node.name) + '.', 0);

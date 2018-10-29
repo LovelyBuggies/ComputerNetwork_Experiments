@@ -19,7 +19,7 @@ def send_distance_vector_once(node:Node):
 			if n != node:
 				n_addr = name_To_address(n);
 				sendpkt = Packet(m.address, n_addr, rip_table[n], 1);
-				m.socket.sendto(sendpkt.serialize().encode(), (n_addr.ip, n_addr.port));
+				m.receiveSocket.sendto(sendpkt.serialize().encode(), (n_addr.ip, n_addr.port));
 
 
 # 相邻路由器周期性(30s)地交换距离向量
@@ -27,14 +27,14 @@ def send_distance_vector_periodcally(node: Node):
 	while True:
 		# node.printOutputMessageHeader();
 		# print('sending DV periodcally... ');
-		
+
 		lock.acquire();
 		try:
 			for n in node.neighbors:
 				if n != node.name:
 					n_addr = name_To_address(n);
 					sendpkt = Packet(node.address, n_addr, node.RIP_routingTable, 1);
-					node.sendSocket.sendto(sendpkt.serialize().encode(), (n_addr.ip, n_addr.port));
+					node.sendreceiveSocket.sendto(sendpkt.serialize().encode(), (n_addr.ip, n_addr.port));
 		finally:
 			lock.release();
 
@@ -53,11 +53,11 @@ def start_UDP_listener_thread(node: Node):
 
 def handle_receiving_packet(node: Node):
 	while True:
-		data, addr = node.socket.recvfrom(1024);  # 接收数据
+		data, addr = node.receiveSocket.recvfrom(1024);  # 接收数据
 		recvPkt = Packet();
 		recvPkt.deserialize(bytes.decode(data));
 
-	
+
 		if recvPkt.packetType == 1:  # 0表示普通数据包，1表示ORIP响应报文数据包,2表示该数据包是一条发送数据包的指令
 			handle_receiving_RIP_distance_vector_packet(node, recvPkt);
 
@@ -72,7 +72,7 @@ def handle_receiving_RIP_distance_vector_packet(node: Node, recvPkt: Packet):
 	if node_recv_from not in allNeighbor.keys():
 		allNeighbor[node_recv_from] = neighbors;
 	client = {'name': node_recv_from, 'address': recvPkt.src, 'neighbors': neighbors};
-	
+
 	# node.printOutputMessageHeader();
 	# print('receive DV pkt from:', node_recv_from);
 
@@ -82,16 +82,16 @@ def handle_receiving_RIP_distance_vector_packet(node: Node, recvPkt: Packet):
 		if node_recv_from not in nodesAliveInTopo:
 			nodesAliveInTopo.add(node_recv_from);
 			rip_table[node_recv_from] = {};
-		
+
 		node.printOutputMessageHeader();
 		print('alive nodes: ', nodesAliveInTopo);
 		#if node_recv_from in node.neighbors.keys():
 		#	node.aliveNeighbors.add(node_recv_from);
-		
-		
+
+
 		lastTimeRecvPktFromNode[node_recv_from] = time.time();
 
-		
+
 		changeRoutingTable = False;
 		rip_table[node_recv_from] = {};
 		# 合并节点自己的RIP表和收到的RIP表
@@ -99,7 +99,7 @@ def handle_receiving_RIP_distance_vector_packet(node: Node, recvPkt: Packet):
 			isInNodeRoutingTable = False;
 			recvEntry = RIP_RoutingTableEntry(recvPkt.payload[i]['dest'], recvPkt.payload[i]['nextHop'], recvPkt.payload[i]['hopsToDest']);
 			rip_table[node_recv_from][i] = recvEntry;
-			
+
 		temp = rip_table[node_recv_from].copy();
 		for v in client['neighbors']:
 			if v in nodesAliveInTopo:
@@ -120,10 +120,10 @@ def handle_receiving_RIP_distance_vector_packet(node: Node, recvPkt: Packet):
 									if rip_table[v][j].hopsToDest != temp[i].hopsToDest + 1:
 										rip_table[v][j].hopsToDest = temp[i].hopsToDest + 1;
 										changeRoutingTable = True;
-									
+
 										if rip_table[v][j].hopsToDest > 16:
 											rip_table[v][j].hopsToDest = 16;
-					
+
 					# 收到的RIP表中和节点自己的RIP表dest不同的条目
 					if not isInNodeRoutingTable:
 						mytemp = RIP_RoutingTableEntry(temp[i].dest, temp[i].nextHop, temp[i].hopsToDest);
@@ -141,7 +141,7 @@ def handle_receiving_RIP_distance_vector_packet(node: Node, recvPkt: Packet):
 					#send_distance_vector_once(Node(v));
 					n_addr = name_To_address(v);
 					sendpkt = Packet(node.address, n_addr, rip_table[v], 1);
-					node.socket.sendto(sendpkt.serialize().encode(), (n_addr.ip, n_addr.port));
+					node.receiveSocket.sendto(sendpkt.serialize().encode(), (n_addr.ip, n_addr.port));
 					# print the new routing table
 					# node.printOutputMessageHeader();
 					print('RIP routing table after updating... ');
