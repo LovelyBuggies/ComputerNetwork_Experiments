@@ -4,7 +4,7 @@
 
 > **Class design** for junior students of SDCS, SYSU. 
 > 
-> **ComputerNetwork** Class by Yi Xie, SDCS, SYSU. 
+> **Computer Network** Course by Yi Xie, SDCS, SYSU. 
 > 
 > **Author** Nino Lau.
 
@@ -15,7 +15,7 @@
 
 > **Class homework** for junior students of SDCS, SYSU. 
 > 
-> **ComputerNetworkExperiment** Class by Shengbang Wang, SDCS, SYSU. 
+> **Computer Network Experiment** Coursa by Shengbang Wang, SDCS, SYSU. 
 > 
 > **Author** Nino Lau.
 
