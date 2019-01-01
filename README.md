@@ -15,7 +15,7 @@
 
 > **Class homework** for junior students of SDCS, SYSU. 
 > 
-> **Computer Network Experiment** Coursa by Shengbang Wang, SDCS, SYSU. 
+> **Computer Network Experiment** Course by Shengbang Wang, SDCS, SYSU. 
 > 
 > **Author** Nino Lau.
 
